@@ -16,7 +16,7 @@ OUTPUT→飲み物の取得結果、お釣り
 仕様:
 実行すると、ユーザの入力待ちになる
 “飲み物の種別:投入金額”の形式で入力する
-飲み物が買えた場合、「〜が買えました。お釣り􏰁〜円です。」と出力する
+飲み物が買えた場合、「〜が買えました。お釣りは〜円です。」と出力する
 飲み物が買えなかった場合、「〜が買えません。〜円足りません。」と出力する
 飲み物が売り切れだった場合、「〜􏰁売り切れです。〜円返金します。」と出力する
 """
@@ -27,7 +27,8 @@ import drinks
 
 
 def run():
-    vending_machine = VendingMachine()
+    price_list = {'水':100, 'コーラ':150, 'お茶':130}
+    vending_machine = VendingMachine(price_list)
 
     # 飲み物を補充する
     # TODO:関数にする
@@ -48,15 +49,24 @@ def run():
     if False:
         input_str = input()
 
+
+
     if False:
         print('“飲み物の種別:投入金額”の形式で入力してください')
         return
 
+    # debug
+    buy_drink = 'お茶'
+    money = 100
 
     # お金を投入する
-    #vending_machine.InputMoney()
+    # TODO　お金の投入と商品選択を別にする
+    drink, change = vending_machine.Exchange(buy_drink, money)
+    if drink:
+        print(drink.name, change)
+    else:
+        print(change)
 
-    # 
 
     print('end')
 
