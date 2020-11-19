@@ -1,11 +1,39 @@
+import enum
+
+import drinks
+
+class BuyResult(enum.Enum):
+    # 売り切れ
+    SOLD_OUT = enum.auto()
+    # 不足
+    LACK = enum.auto()
+    # 購入成功
+    SUCCESS = enum.auto()
+    
+
 class VendingMachine():
 
     def __init__(self, price_list):
-        self.stocks = {}
+
+        # ドリンクと金額リスト
         self.price_list = price_list
 
+        # 補充しているドリンク
+        self.stocks = {}
 
-    def AddDrink(self, drink):
+        # 顧客が投入したお金
+        self.deposit = 0
+
+
+    def add_drink(self, drink: drinks.Drink):
+        """
+        ドリンクを補充する
+
+        Parameters
+        ----------
+        drink
+            補充するドリンク
+        """
 
         # 当たり付きドリンクがあるかもしれないので、
         # あえてインスタンスとして保持する
@@ -14,40 +42,71 @@ class VendingMachine():
         else:
             self.stocks[drink.name] = [drink]
 
-    def Exchange(self, drink_name : str, input_amount : int):
+    def charge(self, cash: int) -> bool:
         """
-        ret 飲み物、　返却するお金
-        TODO: ここでは結果だけ返却スべきで標準出力は行わない
+        お金を投入する。
+
+        Parameters
+        ----------
+        cash : int
+            投入するお金
+
+        Returns
+        -------
+        False/True : bool
+            False:投入成功、True:投入成功
+        """
+        # 最安硬貨が10円なので、10の倍数以外は受け付けない
+        if cash % 10 != 0:
+            return False
+        
+        self.deposit += cash
+        return True
+
+
+    def exchange(self, drink_name: str):
+        """
+        ドリンクを購入する
+
+        Parameters
+        ----------
+        drink_name : str
+            購入するドリンクの名前
+
+        Returns
+        -------
+        BuyResult : Enume
+            購入結果
+        drink : Drink
+            ドリンク(購入できない場合はNone)
+        deposit or charge : int
+            売り切れの場合はチャージされているお金
+            残高が足りない場合は不足金
+            正常に購入できた場合はお釣り           
         """
         
         if not drink_name in self.price_list:
             raise Exception('リストに登録されていない飲み物が選択されました')
 
-        # ストックがなければ
-        if not drink_name in self.stocks or len(self.stocks[drink_name]) == 0:
-            print(f'{drink_name}は売り切れです。{input_amount}円返金します。')
-            return None, input_amount
+        # 売り切れの場合
+        if not (drink_name in self.stocks and len(self.stocks[drink_name]) > 0):
+            return BuyResult.SOLD_OUT, None, self.deposit
         
         price = self.price_list[drink_name]
 
-        change = input_amount - price
+        change = self.deposit - price
 
+        # 残高が足りない場合
         if change < 0:
-            print(f'{drink_name}が買えません。{-change}円足りません。')
-            return None, input_amount
+            return BuyResult.LACK, None, -change
 
+        # 正常に購入できた場合
         drink = self.stocks[drink_name].pop(0)
-        print(f'{drink_name}が買えました。お釣りは{change}円です。')
-        return drink, change
+        self.deposit -= price
+        return BuyResult.SUCCESS, drink, change
 
-    def __CalcCahnge(self):
-        pass
-        
 
-    def __PopDrink(self, drink):
-        pass
-
-    def DisplayStock(self):
+    def display_stock(self):
        
         for k, v in self.stocks.items():
             print(k, len(v))
