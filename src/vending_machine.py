@@ -9,6 +9,8 @@ class BuyResult(enum.Enum):
     LACK = enum.auto()
     # 購入成功
     SUCCESS = enum.auto()
+    #当たり
+    FREE = enum.auto()
     
 
 class VendingMachine():
@@ -101,9 +103,17 @@ class VendingMachine():
             return BuyResult.LACK, None, -change
 
         # 正常に購入できた場合
+
+        # 1/10で当たり（0を当たりとする）
+        free = random.randint(0,9) == 0
+        
         drink = self.stocks[drink_name].pop(0)
-        self.deposit -= price
-        return BuyResult.SUCCESS, drink, change
+
+        if free:
+            return BuyResult.SUCCESS, drink, self.deposit
+        else:
+            self.deposit -= price
+            return BuyResult.SUCCESS, drink, change
 
 
     def display_stock(self):

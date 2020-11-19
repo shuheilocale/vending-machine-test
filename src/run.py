@@ -85,6 +85,8 @@ def run():
         print(f'{target_drink}が買えません。{change}円足りません。')
     elif result == BuyResult.SUCCESS:
         print(f'{target_drink}が買えました。お釣りは{change}円です。')
+    elif result == BuyResult.FREE:
+        print(f'{target_drink}が当たりました。お釣りは{change}円です。')
     else:
         raise Exception()
 
