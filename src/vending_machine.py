@@ -1,4 +1,5 @@
 import enum
+import random
 
 import drinks
 
@@ -9,6 +10,8 @@ class BuyResult(enum.Enum):
     LACK = enum.auto()
     # 購入成功
     SUCCESS = enum.auto()
+    #当たり
+    FREE = enum.auto()
     
 
 class VendingMachine():
@@ -101,9 +104,50 @@ class VendingMachine():
             return BuyResult.LACK, None, -change
 
         # 正常に購入できた場合
+
+        # 1/10で当たり（0を当たりとする）
+        free = random.randint(0,9) == 0
+          
         drink = self.stocks[drink_name].pop(0)
-        self.deposit -= price
-        return BuyResult.SUCCESS, drink, change
+
+        if free:
+            return BuyResult.FREE, drink, self.deposit
+        else:
+            self.deposit -= price
+            return BuyResult.SUCCESS, drink, change
+
+    def widthdraw(self):
+        """
+        お釣りを返却する。。
+
+        Returns
+        -------
+        cash : int
+        """
+        cash = self.deposit
+        self.deposit =0
+        return cash
+
+    @property
+    def lowest_price(self) -> int:
+        """
+        登録されているドリンクの中から最低価格を返却する。
+
+        Returns
+        -------
+        lowest price : int
+        """
+        return min([p for p in self.price_list.values()])
+
+    def can_exchange(self) -> bool:
+        """
+        登録されているドリンクの中から最低価格を返却する。
+
+        Returns
+        -------
+        can exchange : bool
+        """
+        return self.lowest_price <= self.deposit
 
 
     def display_stock(self):
