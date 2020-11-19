@@ -17,10 +17,11 @@ class VendingMachine():
     def Exchange(self, drink_name : str, input_amount : int):
         """
         ret 飲み物、　返却するお金
+        TODO: ここでは結果だけ返却スべきで標準出力は行わない
         """
         
         if not drink_name in self.price_list:
-            return None, None
+            raise Exception('リストに登録されていない飲み物が選択されました')
 
         # ストックがなければ
         if not drink_name in self.stocks or len(self.stocks[drink_name]) == 0:
